@@ -8,8 +8,8 @@ from scrapy.crawler import CrawlerProcess
 PAGES_COUNT = 100
 
 SAVE_DIR = 'pages'
-INDEX_FILE = 'pages/index.txt'
-DUMP_FILE = 'pages/выкачка.txt'
+INDEX_FILE = 'index.txt'
+DUMP_FILE = 'выкачка.txt'
 
 RESTRICTED_DOMAINS = [
     't.me', 'instagram.com', 'vk.com', 'm.vk.com', 'ok.ru', 'youtube.com',
@@ -23,12 +23,16 @@ RESTRICTED_URLS = [
 ]
 
 START_URLS = [
-    'https://cuprum.media/spravochnik/f-mrt',
-    'https://cuprum.media/science-answers',
-    'https://cuprum.media/columns/nizkouglevodnye-diety',
-    'https://cuprum.media/lifestyle/foodstagram',
-    'https://cuprum.media/spravochnik/buckwheat-tea-sp',
-    'https://meduza.io/feature/2020/03/20/kak-iskat-meditsinskuyu-informatsiyu-vo-vremya-pandemii-i-posle-nee',
+    'https://elementy.ru/',
+    'https://nauka.tass.ru/',
+    'https://nplus1.ru/',
+    'https://postnauka.ru/',
+    'https://www.nkj.ru/',
+    'https://indicator.ru/',
+    'https://chrdk.ru/',
+    'https://scientificrussia.ru/',
+    'https://kot.sh/',
+    'https://22century.ru/'
 ]
 
 TEXT_FILE_EXTENSIONS = ['.html', '.htm', '', '/']
@@ -105,7 +109,7 @@ class Scraper(scrapy.Spider):
         # Запись в общий файл выкачки
         with open(DUMP_FILE, 'a', encoding='utf-8') as f:
             f.write(f'FILE {self.page_counter}: {response.url}\n')
-            f.write(text_content + '\n' + '=' * 80 + '\n')
+            f.write(response.text + '\n' + '=' * 80 + '\n')
 
         self.log(f'Saved file {filename}. Total received: {self.page_counter} pages')
 
@@ -116,7 +120,7 @@ class Scraper(scrapy.Spider):
 
         # Сбор ссылок на новые страницы
         next_pages = set(response.css('a::attr(href)').getall() + response.xpath("//a/@href").getall())
-        next_pages = set(urljoin(response.url, link) for link in next_pages)  # Преобразуем относительные ссылки в абсолютные
+        next_pages = set(urljoin(response.url, link) for link in next_pages)
 
         for next_page in next_pages:
             if next_page and self.page_allowed(next_page):
